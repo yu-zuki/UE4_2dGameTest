@@ -8,6 +8,7 @@
 
 class UTextRenderComponent;
 
+//プレイヤーのアニメション状態
 UENUM(BlueprintType)
 enum class ePlayerStatus : uint8
 {
@@ -16,6 +17,7 @@ enum class ePlayerStatus : uint8
 	Jump
 
 };
+
 /**
  * This class is the default character for Rockman, and it is responsible for all
  * physical interaction between the player and the world.
@@ -70,6 +72,10 @@ protected:
 	// End of APawn interface
 
 //------------------------------------------追加したもの-----------------------------------------------------------
+	float fHP;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameMode")
+	int32 iLife;
+
 	//ジャンプ力の引数
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Jump")
 	float fGravityScale;
@@ -77,8 +83,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Jump")
 	float fJumpZVelocity;
 
-//------------------------------------------追加したもの-----------------------------------------------------------
+	void DebugKey();
 public:
+	UFUNCTION(BlueprintImplementableEvent, Category = "GameMode")
+	void IsGameOver();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "GameMode")
+	void IsDeath();
+//------------------------------------------追加したもの-----------------------------------------------------------
 public:
 	ARockmanCharacter();
 

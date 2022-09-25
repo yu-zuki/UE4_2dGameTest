@@ -16,8 +16,10 @@ DEFINE_LOG_CATEGORY_STATIC(SideScrollerCharacter, Log, All);
 // ARockmanCharacter
 
 ARockmanCharacter::ARockmanCharacter()
-	:fGravityScale(2.f)
-	,fJumpZVelocity(1000.f)
+	 :fHP(100.f)
+	 ,iLife(100)
+	 ,fGravityScale(2.f)
+	 ,fJumpZVelocity(1000.f)
 {
 	// Use only Yaw from the controller and ignore the rest of the rotation.
 	bUseControllerRotationPitch = false;
@@ -103,6 +105,19 @@ void ARockmanCharacter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	
 	UpdateCharacter();	
+
+	//
+	if (iLife <= 0)
+	{
+		IsGameOver();
+	}
+
+	//ËÀÍöÅÐ¶¨
+	if (fHP <= 0)
+	{
+		IsDeath();
+	}
+	//SideViewCameraComponent->
 }
 
 
@@ -115,9 +130,15 @@ void ARockmanCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ARockmanCharacter::MoveRight);
+	PlayerInputComponent->BindAction("Debug", IE_Pressed, this, &ARockmanCharacter::DebugKey);
 
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &ARockmanCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &ARockmanCharacter::TouchStopped);
+}
+
+void ARockmanCharacter::DebugKey()
+{
+	fHP = 0;
 }
 
 void ARockmanCharacter::MoveRight(float Value)
