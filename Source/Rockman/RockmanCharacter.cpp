@@ -18,7 +18,7 @@ DEFINE_LOG_CATEGORY_STATIC(SideScrollerCharacter, Log, All);
 // ARockmanCharacter
 
 ARockmanCharacter::ARockmanCharacter()
-	 :fHP(30.f)
+	 :iHP(25)
 	 ,iLife(100)
 	 ,fGravityScale(2.f)
 	 ,fJumpZVelocity(1000.f)
@@ -123,7 +123,7 @@ void ARockmanCharacter::Tick(float DeltaSeconds)
 	}
 
 	//プレイヤーのHPが0の時　死ぬ
-	if (fHP <= 0)
+	if (iHP <= 0)
 	{
 		IsDeath();
 	}
@@ -149,7 +149,7 @@ void ARockmanCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 void ARockmanCharacter::DebugKey()
 {
 	//即死させます
-	fHP = 0;
+	iHP = 0;
 }
 
 void ARockmanCharacter::RockmanShoot()

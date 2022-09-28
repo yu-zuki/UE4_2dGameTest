@@ -78,7 +78,7 @@ protected:
 protected:
 //------------------------------------------追加したもの-----------------------------------------------------------
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player")
-	float fHP;
+	int iHP;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameMode")
 	int32 iLife;
@@ -106,6 +106,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "GameMode")
 	void IsDeath();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "GameMode")
+	int GetHp();
 
 protected:
 	//------------キーボード入力-----------------
