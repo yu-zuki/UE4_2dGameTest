@@ -9,6 +9,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "Camera/CameraComponent.h"
+#include "RockManBullet.h"
+#include <Components/ArrowComponent.h>
 
 DEFINE_LOG_CATEGORY_STATIC(SideScrollerCharacter, Log, All);
 
@@ -78,6 +80,13 @@ ARockmanCharacter::ARockmanCharacter()
 	// Enable replication on the Sprite component so animations show up when networked
 	GetSprite()->SetIsReplicated(true);
 	bReplicates = true;
+
+	//--------------------追加したもの-----------------------------------
+
+	BulletArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("BulletArrowComp"));
+	BulletArrowComponent->SetupAttachment(RootComponent);
+
+	//--------------------追加したもの-----------------------------------
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -90,7 +99,8 @@ void ARockmanCharacter::UpdateAnimation()
 
 	// Are we moving or standing still?
 	UPaperFlipbook* DesiredAnimation = (PlayerSpeedSqr > 0.0f) ? RunningAnimation : IdleAnimation;
-	// Jump､ｷ､ﾆ､ﾞ､ｹ､ｫ
+
+	// Jump　してますか？
 	if (GetCharacterMovement()->IsFalling())
 		DesiredAnimation = JumpingAnimation;
 	
@@ -112,12 +122,11 @@ void ARockmanCharacter::Tick(float DeltaSeconds)
 		IsGameOver();
 	}
 
-	//ﾋﾀﾍﾐｶｨ
+	//プレイヤーのHPが0の時　死ぬ
 	if (fHP <= 0)
 	{
 		IsDeath();
 	}
-	//SideViewCameraComponent->
 }
 
 
@@ -131,6 +140,7 @@ void ARockmanCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ARockmanCharacter::MoveRight);
 	PlayerInputComponent->BindAction("Debug", IE_Pressed, this, &ARockmanCharacter::DebugKey);
+	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &ARockmanCharacter::RockmanShoot);
 
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &ARockmanCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &ARockmanCharacter::TouchStopped);
@@ -138,7 +148,20 @@ void ARockmanCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 
 void ARockmanCharacter::DebugKey()
 {
+	//即死させます
 	fHP = 0;
+}
+
+void ARockmanCharacter::RockmanShoot()
+{
+	if (BulletClass)
+	{
+		//座標情報　取得
+		FTransform tempTransfrom = BulletArrowComponent->GetComponentTransform();
+
+		//弾を作成
+		GetWorld()->SpawnActor<ARockManBullet>(BulletClass,tempTransfrom);
+	}
 }
 
 void ARockmanCharacter::MoveRight(float Value)

@@ -4,11 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "PaperCharacter.h"
+#include "RockManBullet.h"
 #include "RockmanCharacter.generated.h"
 
 class UTextRenderComponent;
+class ARockManBullet;
+class UArrowComponent;
 
-//プレイヤーのアニメション状態
+//プEぅ洎`のアニメション状態
 UENUM(BlueprintType)
 enum class ePlayerStatus : uint8
 {
@@ -41,6 +44,7 @@ class ARockmanCharacter : public APaperCharacter
 
 	UTextRenderComponent* TextComponent;
 	virtual void Tick(float DeltaSeconds) override;
+
 protected:
 	// The animation to play while running around
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Animations)
@@ -71,26 +75,45 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End of APawn interface
 
-//------------------------------------------追加したもの-----------------------------------------------------------
+protected:
+//------------------------------------------捛壛偟偨傕偺-----------------------------------------------------------
 	float fHP;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameMode")
 	int32 iLife;
 
-	//ジャンプ力の引数
+	//抏偺嶌惉埵抲
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shoot")
+	UArrowComponent* BulletArrowComponent;
+
+	//抏偺嶲徠
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shoot")
+	TSubclassOf<ARockManBullet> BulletClass;
+
+	//ARockManBullet* RockManBullet;
+
+	//梫傜側偄僐乕僪
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Jump")
 	float fGravityScale;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Jump")
 	float fJumpZVelocity;
 
-	void DebugKey();
 public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "GameMode")
 	void IsGameOver();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "GameMode")
 	void IsDeath();
-//------------------------------------------追加したもの-----------------------------------------------------------
+
+protected:
+	//------------僉乕儃乕僪擖椡-----------------
+	void DebugKey();
+
+	void RockmanShoot();
+	//------------僉乕儃乕僪擖椡-----------------
+
+//------------------------------------------捛壛偟偨傕偺-----------------------------------------------------------
 public:
 	ARockmanCharacter();
 
