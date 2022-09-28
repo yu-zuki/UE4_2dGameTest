@@ -22,7 +22,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet")
 	float fDestoryTime;
 
-
 	//弾　アニメション
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet")
 	UPaperFlipbook* FlipbookBullet;	
@@ -37,14 +36,19 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet")
 	USphereComponent* SphereComponent;
 
+	//弾　スピード
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet")
-	UProjectileMovementComponent* ProjectileMovementComponent;
+	float fBulletSpeed;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet")
+	//UProjectileMovementComponent* ProjectileMovementComponent;
 
 	//Actor 当たり判定発生時
 	UFUNCTION()
-		void OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	void TimerDestroy();
+	void StopMovement();
 
 public:	
 	// Sets default values for this actor's properties

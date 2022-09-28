@@ -18,7 +18,7 @@ DEFINE_LOG_CATEGORY_STATIC(SideScrollerCharacter, Log, All);
 // ARockmanCharacter
 
 ARockmanCharacter::ARockmanCharacter()
-	 :fHP(100.f)
+	 :fHP(30.f)
 	 ,iLife(100)
 	 ,fGravityScale(2.f)
 	 ,fJumpZVelocity(1000.f)

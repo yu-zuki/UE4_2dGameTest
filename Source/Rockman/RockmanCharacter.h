@@ -77,6 +77,7 @@ protected:
 
 protected:
 //------------------------------------------’Ç‰Á‚µ‚½‚à‚Ì-----------------------------------------------------------
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player")
 	float fHP;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameMode")

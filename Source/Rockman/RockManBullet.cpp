@@ -10,6 +10,7 @@
 ARockManBullet::ARockManBullet()
 	:fDestoryTime(0.05f)
 	,iDamage(10)
+	,fBulletSpeed(30)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -18,6 +19,7 @@ ARockManBullet::ARockManBullet()
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
 	RootComponent = SphereComponent;
 
+	//当たり判定イベントを　追加
 	FScriptDelegate DelegateBegin;
 	DelegateBegin.BindUFunction(this, "OnOverlapBegin");
 	SphereComponent->OnComponentBeginOverlap.Add(DelegateBegin);
@@ -27,7 +29,10 @@ ARockManBullet::ARockManBullet()
 	FlipbookComponent->SetupAttachment(RootComponent);
 
 	
-	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComp"));
+	//ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComp"));
+
+	//FPS：30
+	//
 
 }
 
@@ -37,7 +42,7 @@ void ARockManBullet::BeginPlay()
 	Super::BeginPlay(); 
 
 	//寿命設定　5秒
-	SetLifeSpan(5);
+	SetLifeSpan(3);
 	
 }
 
@@ -46,6 +51,21 @@ void ARockManBullet::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	FRotator Rotator = GetActorRotation();
+
+	if (Rotator.Yaw <= -179.f && Rotator.Yaw >= -180.f)
+	{
+		FVector Vector = GetActorLocation();
+		Vector.X -= fBulletSpeed;
+		SetActorLocation(Vector);
+	}
+	else
+	{
+		FVector Vector = GetActorLocation();
+		Vector.X += fBulletSpeed;
+		SetActorLocation(Vector);
+	}
+	
 }
 
 //弾の　当たり判定が　発生した時の　処理
@@ -53,7 +73,9 @@ void ARockManBullet::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveCo
 {
 	//タイマー設定　処理：オブジェクトを消すも
 	GetWorldTimerManager().SetTimer(TimerHandle_Destroy, this, &ARockManBullet::TimerDestroy, fDestoryTime);
-	ProjectileMovementComponent->StopMovementImmediately();
+	StopMovement();
+
+	//ProjectileMovementComponent->StopMovementImmediately();
 
 	SphereComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
@@ -62,6 +84,11 @@ void ARockManBullet::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveCo
 void ARockManBullet::TimerDestroy()
 {
 	Destroy();
+}
+
+void ARockManBullet::StopMovement()
+{
+	fBulletSpeed = 0;
 }
 
 //void ARockManBullet::OnActorOverlapBegin(AActor* OverlappedActor, AActor* OtherActor)
