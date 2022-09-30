@@ -55,7 +55,12 @@ protected:
 	class UPaperFlipbook* IdleAnimation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
-	class UPaperFlipbook* JumpingAnimation;
+	class UPaperFlipbook* JumpingAnimation; 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
+	class UPaperFlipbook* InjuringAnimation;
+
+
 
 	/** Called to choose the correct animation to play based on the character's movement state */
 	void UpdateAnimation();
@@ -77,9 +82,6 @@ protected:
 
 protected:
 //------------------------------------------追加したもの-----------------------------------------------------------
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player")
-	int iHP;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameMode")
 	int32 iLife;
 
@@ -91,14 +93,62 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shoot")
 	TSubclassOf<ARockManBullet> BulletClass;
 
-	//ARockManBullet* RockManBullet;
 
-	//要らないコード
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Jump")
-	float fGravityScale;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Jump")
-	float fJumpZVelocity;
+						//------------------------damge--------------------------
+	//ダメージ受ける？
+	bool bCanInjure;
+
+	//ダメージ受けたら、アニメションさせる時間
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damge")
+	float fInjuringAnimationTime;
+
+	FTimerHandle TimerHandle_InjuringAnimationTime;
+
+	//ダメージの処理
+	UFUNCTION(BlueprintCallable, Category = "Damge")
+	void Damge(int _HpSub);
+
+	UFUNCTION(Category = "Damge")
+	bool IsInjuring();
+
+	UFUNCTION(Category = "Damge")
+	void SetInjureAnimationON();
+
+	UFUNCTION(Category = "Damge")
+	void SetInjureAnimationOFF();
+
+
+
+	//Hpロック中
+	bool bCanHpLock;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerHp")
+	int iHP;
+
+	//Hp一回ロックしたら、アンロックかかる時間　単位：s
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerHp")
+	float fUnlockTime;
+
+	FTimerHandle TimerHandle_Unlock;
+
+	//ダメージ受けた時、Hpロックして 無敵時間をさせる処理
+	void SetHpLock();
+	void SetHpUnlock();
+
+public:
+	UFUNCTION(BlueprintCallable,Category = "PlayerHp")
+	int GetPlayerHp() const;
+
+	//HPの増加減らす　処理
+	UFUNCTION(BlueprintCallable, Category = "PlayerHp")
+	void HPSub(int _subHP);
+
+	UFUNCTION(BlueprintCallable, Category = "PlayerHp")
+	void HPAdd(int _addHP);
+						//------------------------damge--------------------------
+
+
 
 public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "GameMode")
@@ -107,8 +157,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "GameMode")
 	void IsDeath();
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "GameMode")
-	int GetHp();
+	
 
 protected:
 	//------------キーボード入力-----------------
@@ -125,4 +174,8 @@ public:
 	FORCEINLINE class UCameraComponent* GetSideViewCameraComponent() const { return SideViewCameraComponent; }
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+
+
+	UFUNCTION()
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor)override;
 };

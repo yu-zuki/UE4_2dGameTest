@@ -18,10 +18,11 @@ DEFINE_LOG_CATEGORY_STATIC(SideScrollerCharacter, Log, All);
 // ARockmanCharacter
 
 ARockmanCharacter::ARockmanCharacter()
-	 :iHP(25)
-	 ,iLife(100)
-	 ,fGravityScale(2.f)
-	 ,fJumpZVelocity(1000.f)
+	 :iLife(100)
+	 ,bCanHpLock(false)
+	 ,fInjuringAnimationTime(1.0f)
+	 ,iHP(25)
+	 ,fUnlockTime(1.0f)
 {
 	// Use only Yaw from the controller and ignore the rest of the rotation.
 	bUseControllerRotationPitch = false;
@@ -55,9 +56,9 @@ ARockmanCharacter::ARockmanCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 
 	// Configure character movement
-	GetCharacterMovement()->GravityScale = fGravityScale;
+	GetCharacterMovement()->GravityScale = 1000.0f;
 	GetCharacterMovement()->AirControl = 0.80f;
-	GetCharacterMovement()->JumpZVelocity = fJumpZVelocity;
+	GetCharacterMovement()->JumpZVelocity = 1000.0f;
 	GetCharacterMovement()->GroundFriction = 3.0f;
 	GetCharacterMovement()->MaxWalkSpeed = 1200.0f;
 	GetCharacterMovement()->MaxFlySpeed = 600.0f;
@@ -97,14 +98,24 @@ void ARockmanCharacter::UpdateAnimation()
 	const FVector PlayerVelocity = GetVelocity();
 	const float PlayerSpeedSqr = PlayerVelocity.SizeSquared();
 
-	// Are we moving or standing still?
-	UPaperFlipbook* DesiredAnimation = (PlayerSpeedSqr > 0.0f) ? RunningAnimation : IdleAnimation;
+	UPaperFlipbook* DesiredAnimation = nullptr;
 
-	// Jump　してますか？
-	if (GetCharacterMovement()->IsFalling())
-		DesiredAnimation = JumpingAnimation;
-	
-	if( GetSprite()->GetFlipbook() != DesiredAnimation 	)
+	if (IsInjuring())
+	{
+		DesiredAnimation = InjuringAnimation;
+	}
+	else
+	{
+		// Are we moving or standing still?
+		DesiredAnimation = (PlayerSpeedSqr > 0.0f) ? RunningAnimation : IdleAnimation;
+
+		// Jump　してますか？
+		if (GetCharacterMovement()->IsFalling())
+			DesiredAnimation = JumpingAnimation;
+
+	}
+
+	if (GetSprite()->GetFlipbook() != DesiredAnimation)
 	{
 		GetSprite()->SetFlipbook(DesiredAnimation);
 	}
@@ -146,11 +157,103 @@ void ARockmanCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindTouch(IE_Released, this, &ARockmanCharacter::TouchStopped);
 }
 
+//////////////////////////////////////////////////////////////////////////
+// Damge
+
+void ARockmanCharacter::Damge(int _HpSub = 0)
+{
+	if (bCanHpLock)
+	{
+		return;
+	}
+	else
+	{
+		HPSub(_HpSub);
+
+		SetInjureAnimationON();
+
+		SetHpLock();
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+// InjureAnim
+
+bool ARockmanCharacter::IsInjuring()
+{
+	return bCanInjure;
+}
+
+void ARockmanCharacter::SetInjureAnimationON()
+{
+	bCanInjure = true;
+
+	GetWorldTimerManager().SetTimer(TimerHandle_InjuringAnimationTime, this, &ARockmanCharacter::SetInjureAnimationOFF, fInjuringAnimationTime);
+}
+
+void ARockmanCharacter::SetInjureAnimationOFF()
+{
+	bCanInjure = false;
+}
+
+void ARockmanCharacter::HPSub(int _subHP = 0)
+{
+	iHP -= _subHP;
+	if (iHP < 0)
+	{
+		iHP = 0;
+	}
+}
+
+void ARockmanCharacter::HPAdd(int  _addHP = 0)
+{
+	iHP += _addHP;
+	if (iHP > 25)
+	{
+		iHP = 25;
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+// HpLock
+
+void ARockmanCharacter::SetHpLock()
+{
+	bCanHpLock = true;
+
+	GetWorldTimerManager().SetTimer(TimerHandle_Unlock, this, &ARockmanCharacter::SetHpUnlock, fUnlockTime);
+}
+
+void ARockmanCharacter::SetHpUnlock()
+{
+	bCanHpLock = false;
+}
+
+int ARockmanCharacter::GetPlayerHp() const
+{
+	return iHP;
+}
+
 void ARockmanCharacter::DebugKey()
 {
 	//即死させます
 	iHP = 0;
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+// Overlap
+void ARockmanCharacter::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	Super::NotifyActorBeginOverlap(OtherActor);
+
+	
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// Shoot
 
 void ARockmanCharacter::RockmanShoot()
 {
