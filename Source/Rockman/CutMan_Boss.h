@@ -6,10 +6,15 @@
 #include "GameFramework/Character.h"
 #include "CutMan_Boss.generated.h"
 
+class UBehaviorTree;
+
 UCLASS()
 class ROCKMAN_API ACutMan_Boss : public ACharacter
 {
 	GENERATED_BODY()
+private:
+	UPROPERTY(EditAnywhere, Category = AI, meta = (AllowPrivateAccess = "true"))
+		class UBehaviorTree* BehaviorTree;
 
 public:
 	// Sets default values for this character's properties
@@ -25,5 +30,8 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+public:
+	//RCEINLINE UBehaviorTree* GetBehaviorTree()const { return BehaviorTree; }
 
 };
