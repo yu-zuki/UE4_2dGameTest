@@ -11,6 +11,7 @@
 #include "Camera/CameraComponent.h"
 #include "RockManBullet.h"
 #include <Components/ArrowComponent.h>
+#include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY_STATIC(SideScrollerCharacter, Log, All);
 
@@ -138,6 +139,29 @@ void ARockmanCharacter::Tick(float DeltaSeconds)
 	{
 		IsDeath();
 	}
+
+	//ダメージ受けた時の処理
+	if (bCanInjure)
+	{
+		//プレイヤーの入力を無効化
+		auto PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+		DisableInput(PlayerController);
+
+		//座標情報　取得
+		FRotator tempRotation = GetActorRotation();
+		FVector TempDamgeVector = GetActorLocation();
+
+		if (tempRotation.Yaw <= -179.f && tempRotation.Yaw >= -180.f)
+		{
+			TempDamgeVector.X += 5.0f;
+		}
+		else
+		{		
+			TempDamgeVector.X -= 5.0f;
+		}
+		SetActorLocation(TempDamgeVector);
+
+	}
 }
 
 
@@ -194,6 +218,10 @@ void ARockmanCharacter::SetInjureAnimationON()
 void ARockmanCharacter::SetInjureAnimationOFF()
 {
 	bCanInjure = false;
+
+	//プレイヤーの入力を有効化
+	auto PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	EnableInput(PlayerController);
 }
 
 void ARockmanCharacter::HPSub(int _subHP = 0)
