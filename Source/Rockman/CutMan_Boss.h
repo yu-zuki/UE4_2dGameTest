@@ -32,6 +32,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
+	
 	//RCEINLINE UBehaviorTree* GetBehaviorTree()const { return BehaviorTree; }
 
 };
