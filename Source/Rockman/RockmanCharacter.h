@@ -60,6 +60,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
 	class UPaperFlipbook* InjuringAnimation;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
+	class UPaperFlipbook* ShootAnimation;
+
 
 
 	/** Called to choose the correct animation to play based on the character's movement state */
@@ -94,6 +97,9 @@ private:
 protected:
 	FTimerHandle TimerHandle_AddBulletsTime;
 
+	//íeÇë≈Ç¡ÇΩ
+	bool bIsShooting;
+
 	//íeÇÃè[ìUéûä‘
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shoot")
 	float fAddBulletTime;
@@ -111,8 +117,6 @@ protected:
 	//íeÇÃéQè∆
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shoot")
 	TSubclassOf<ARockManBullet> BulletClass;
-
-
 
 						//------------------------damge--------------------------
 	//É_ÉÅÅ[ÉWéÛÇØÇÈÅH
@@ -165,6 +169,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "PlayerHp")
 	void HPAdd(int _addHP);
+
+	//UFUNCTION(BlueprintCallable, Category = "PlayerHp")
+	void HPCheck();
 						//------------------------damge--------------------------
 
 

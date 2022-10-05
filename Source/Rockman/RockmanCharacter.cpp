@@ -20,8 +20,10 @@ DEFINE_LOG_CATEGORY_STATIC(SideScrollerCharacter, Log, All);
 
 ARockmanCharacter::ARockmanCharacter()
 	 :iBullets(3)
-	 ,fAddBulletTime(1.0f)
+	 ,bIsShooting(false)
 	 ,iLife(100)
+	 ,fAddBulletTime(1.0f)
+	 ,bCanInjure(false)
 	 ,bCanHpLock(false)
 	 ,fInjuringAnimationTime(1.0f)
 	 ,iHP(25)
@@ -103,19 +105,23 @@ void ARockmanCharacter::UpdateAnimation()
 
 	UPaperFlipbook* DesiredAnimation = nullptr;
 
-	if (IsInjuring())
+	// Are we moving or standing still?
+	DesiredAnimation = (PlayerSpeedSqr > 0.0f) ? RunningAnimation : IdleAnimation;
+
+	// Jump　してますか？
+	if (GetCharacterMovement()->IsFalling())
+		DesiredAnimation = JumpingAnimation;
+	
+	if (false)
 	{
-		DesiredAnimation = InjuringAnimation;
+		//弾を打った？
+		DesiredAnimation = ShootAnimation;
 	}
-	else
+
+	if (bCanInjure)
 	{
-		// Are we moving or standing still?
-		DesiredAnimation = (PlayerSpeedSqr > 0.0f) ? RunningAnimation : IdleAnimation;
-
-		// Jump　してますか？
-		if (GetCharacterMovement()->IsFalling())
-			DesiredAnimation = JumpingAnimation;
-
+		//ダメージを受けてる？
+		DesiredAnimation = InjuringAnimation;
 	}
 
 	if (GetSprite()->GetFlipbook() != DesiredAnimation)
@@ -130,40 +136,8 @@ void ARockmanCharacter::Tick(float DeltaSeconds)
 	
 	UpdateCharacter();	
 
-	//
-	if (iLife <= 0)
-	{
-		IsGameOver();
-	}
+	HPCheck();
 
-	//プレイヤーのHPが0の時　死ぬ
-	if (iHP <= 0)
-	{
-		IsDeath();
-	}
-
-	//ダメージ受けた時の処理
-	if (bCanInjure)
-	{
-		//プレイヤーの入力を無効化
-		auto PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-		DisableInput(PlayerController);
-
-		//座標情報　取得
-		FRotator tempRotation = GetActorRotation();
-		FVector TempDamgeVector = GetActorLocation();
-
-		if (tempRotation.Yaw <= -179.f && tempRotation.Yaw >= -180.f)
-		{
-			TempDamgeVector.X += 5.0f;
-		}
-		else
-		{		
-			TempDamgeVector.X -= 5.0f;
-		}
-		SetActorLocation(TempDamgeVector);
-
-	}
 }
 
 
@@ -240,6 +214,9 @@ void ARockmanCharacter::SetInjureAnimationOFF()
 	EnableInput(PlayerController);
 }
 
+//////////////////////////////////////////////////////////////////////////
+// HP
+
 void ARockmanCharacter::HPSub(int _subHP = 0)
 {
 	iHP -= _subHP;
@@ -255,6 +232,22 @@ void ARockmanCharacter::HPAdd(int  _addHP = 0)
 	if (iHP > 25)
 	{
 		iHP = 25;
+	}
+}
+
+
+void ARockmanCharacter::HPCheck()
+{
+	//Life 0 is GameOver
+	if (iLife <= 0)
+	{
+		IsGameOver();
+	}
+
+	//プレイヤーのHPが0の時　死ぬ
+	if (iHP <= 0)
+	{
+		IsDeath();
 	}
 }
 
@@ -301,13 +294,14 @@ void ARockmanCharacter::NotifyActorBeginOverlap(AActor* OtherActor)
 
 void ARockmanCharacter::RockmanShoot()
 {
+	//
 	if (BulletClass)
 	{
 		if (iBullets > 0)
 		{
 			//1秒後、弾を充填
 			GetWorldTimerManager().SetTimer(TimerHandle_AddBulletsTime, this, &ARockmanCharacter::BulletAdd, fAddBulletTime);
-			
+
 			//Bullte数　- 1
 			BulletSub(1);
 
@@ -318,6 +312,9 @@ void ARockmanCharacter::RockmanShoot()
 		}
 	}
 }
+
+//////////////////////////////////////////////////////////////////////////
+// Move
 
 void ARockmanCharacter::MoveRight(float Value)
 {
@@ -339,6 +336,9 @@ void ARockmanCharacter::TouchStopped(const ETouchIndex::Type FingerIndex, const 
 	StopJumping();
 }
 
+//////////////////////////////////////////////////////////////////////////
+// UpdateCharacter
+
 void ARockmanCharacter::UpdateCharacter()
 {
 	// Update animation to match the motion
@@ -358,5 +358,27 @@ void ARockmanCharacter::UpdateCharacter()
 		{
 			Controller->SetControlRotation(FRotator(0.0f, 0.0f, 0.0f));
 		}
+	}
+
+	//ダメージ受けた時の処理
+	if (bCanInjure)
+	{
+		//プレイヤーの入力を無効化
+		auto PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+		DisableInput(PlayerController);
+
+		//座標情報　取得
+		FRotator tempRotation = GetActorRotation();
+		FVector TempDamgeVector = GetActorLocation();
+
+		if (tempRotation.Yaw <= -179.f && tempRotation.Yaw >= -180.f)
+		{
+			TempDamgeVector.X += 5.0f;
+		}
+		else
+		{
+			TempDamgeVector.X -= 5.0f;
+		}
+		SetActorLocation(TempDamgeVector);
 	}
 }
