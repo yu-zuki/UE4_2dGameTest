@@ -80,10 +80,29 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End of APawn interface
 
-protected:
 //------------------------------------------í«â¡ÇµÇΩÇ‡ÇÃ-----------------------------------------------------------
+
+
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameMode")
 	int32 iLife;
+
+private:
+	//íeÇÃêî
+	int32 iBullets;
+
+protected:
+	FTimerHandle TimerHandle_AddBulletsTime;
+
+	//íeÇÃè[ìUéûä‘
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shoot")
+	float fAddBulletTime;
+
+	UFUNCTION(Category = "Shoot")
+	void BulletAdd();
+
+	UFUNCTION(Category = "Shoot")
+	void BulletSub(int32 _SubNum);
 
 	//íeÇÃçÏê¨à íu
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shoot")

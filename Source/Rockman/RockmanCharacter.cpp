@@ -19,7 +19,9 @@ DEFINE_LOG_CATEGORY_STATIC(SideScrollerCharacter, Log, All);
 // ARockmanCharacter
 
 ARockmanCharacter::ARockmanCharacter()
-	 :iLife(100)
+	 :iBullets(3)
+	 ,fAddBulletTime(1.0f)
+	 ,iLife(100)
 	 ,bCanHpLock(false)
 	 ,fInjuringAnimationTime(1.0f)
 	 ,iHP(25)
@@ -181,6 +183,20 @@ void ARockmanCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindTouch(IE_Released, this, &ARockmanCharacter::TouchStopped);
 }
 
+void ARockmanCharacter::BulletAdd()
+{
+	iBullets = 3;
+}
+
+void ARockmanCharacter::BulletSub(int32 _SubNum)
+{
+	iBullets -= _SubNum;
+
+	if (iBullets < 0)
+	{
+		iBullets = 0;
+	}
+}
 //////////////////////////////////////////////////////////////////////////
 // Damge
 
@@ -287,11 +303,19 @@ void ARockmanCharacter::RockmanShoot()
 {
 	if (BulletClass)
 	{
-		//À•Wî•ñ@Žæ“¾
-		FTransform tempTransfrom = BulletArrowComponent->GetComponentTransform();
+		if (iBullets > 0)
+		{
+			//1•bŒãA’e‚ð[“U
+			GetWorldTimerManager().SetTimer(TimerHandle_AddBulletsTime, this, &ARockmanCharacter::BulletAdd, fAddBulletTime);
+			
+			//Bullte”@- 1
+			BulletSub(1);
 
-		//’e‚ðì¬
-		GetWorld()->SpawnActor<ARockManBullet>(BulletClass,tempTransfrom);
+			//À•Wî•ñ@Žæ“¾
+			FTransform tempTransfrom = BulletArrowComponent->GetComponentTransform();
+			//’e‚ðì¬
+			GetWorld()->SpawnActor<ARockManBullet>(BulletClass, tempTransfrom);
+		}
 	}
 }
 
