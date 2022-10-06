@@ -5,7 +5,9 @@
 
 URockManGameInstance::URockManGameInstance()
 {
+	//‰Šú‰»ˆ—
 	iPlayerLife = 5;
+	bPlayerWidgetSwitch = false;
 
 	eNowSelectBoss = eBossSelect::CutMan;
 }
@@ -18,6 +20,12 @@ int32 URockManGameInstance::getPlayerLife()
 void URockManGameInstance::setPlayerLife(int32 _iLife)
 {
 	iPlayerLife = _iLife;
+
+	//Life 0‚ÌGameOver
+	if (iPlayerLife <= 0)
+	{
+		IsGameOver();
+	}
 }
 
 eBossSelect URockManGameInstance::getNowSelect()
@@ -59,4 +67,14 @@ void URockManGameInstance::PrevSelect()
 
 	//‘ã“ü
 	eNowSelectBoss = (eBossSelect)Next;
+}
+
+void URockManGameInstance::SetPlayerWidgetON()
+{
+	bPlayerWidgetSwitch = true;
+}
+
+void URockManGameInstance::SetPlayerWidgetOFF()
+{
+	bPlayerWidgetSwitch = false;
 }

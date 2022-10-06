@@ -12,6 +12,7 @@
 #include "RockManBullet.h"
 #include <Components/ArrowComponent.h>
 #include "Kismet/GameplayStatics.h"
+#include "RockManGameInstance.h"
 
 DEFINE_LOG_CATEGORY_STATIC(SideScrollerCharacter, Log, All);
 
@@ -238,11 +239,16 @@ void ARockmanCharacter::HPAdd(int  _addHP = 0)
 
 void ARockmanCharacter::HPCheck()
 {
-	//Life 0 is GameOver
-	if (iLife <= 0)
-	{
-		IsGameOver();
-	}
+	//UGameInstance* TempGameInstance = GetGameInstance();
+	//URockManGameInstance* TempRockManGameInstance = Cast<URockManGameInstance>(GetGameInstance());
+	//if (TempRockManGameInstance)
+	//{
+	//	//Life 0 is GameOver
+	//	if (TempRockManGameInstance->getPlayerLife() <= 0)
+	//	{
+	//		IsGameOver();
+	//	}
+	//}
 
 	//プレイヤーのHPが0の時　死ぬ
 	if (iHP <= 0)

@@ -177,8 +177,8 @@ public:
 
 
 public:
-	UFUNCTION(BlueprintImplementableEvent, Category = "GameMode")
-	void IsGameOver();
+	//UFUNCTION(BlueprintImplementableEvent, Category = "GameMode")
+	//void IsGameOver();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "GameMode")
 	void IsDeath();
