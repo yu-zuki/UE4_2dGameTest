@@ -29,12 +29,19 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player")
-	int32 PlayerLife;
+	int32 iPlayerLife;
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	int32 getPlayerLife();
 
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void setPlayerLife(int32 _iLife);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BOSS")
 	eBossSelect eNowSelectBoss;
+
+	UFUNCTION(BlueprintCallable, Category = "BOSS")
+	eBossSelect getNowSelect();
 
 	UFUNCTION(BlueprintCallable, Category = "BOSS")
 	void NextSelect();

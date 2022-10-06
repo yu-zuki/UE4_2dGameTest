@@ -5,34 +5,58 @@
 
 URockManGameInstance::URockManGameInstance()
 {
-	PlayerLife = 5;
+	iPlayerLife = 5;
 
 	eNowSelectBoss = eBossSelect::CutMan;
 }
 
 int32 URockManGameInstance::getPlayerLife()
 {
-	return PlayerLife;
+	return iPlayerLife;
 }
+
+void URockManGameInstance::setPlayerLife(int32 _iLife)
+{
+	iPlayerLife = _iLife;
+}
+
+eBossSelect URockManGameInstance::getNowSelect()
+{
+	return eNowSelectBoss;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// NextSelect
 
 void URockManGameInstance::NextSelect()
 {
 	uint8 Next = (uint8)eNowSelectBoss;
 
-	Next += 1;
-	if (Next > 5)	{
-		Next = 0;
+	//ŽŸ‚Ì—ñ‹“‚ÉˆÚ“®
+	Next += (uint8)1;
+	if (Next > (uint8)5)	{
+		Next = (uint8)0;
 	}
-
+	
+	//‘ã“ü
 	eNowSelectBoss = (eBossSelect)Next;
 }
+
+//////////////////////////////////////////////////////////////////////////
+// PrevSelect
 
 void URockManGameInstance::PrevSelect()
 {
 	uint8 Next = (uint8)eNowSelectBoss;
 
-	Next -= 1;
-	if (Next < 0) {
-		Next = 5;
+	if (Next <= (uint8)0) {
+		Next = (uint8)5;
 	}
+	else {
+		//ŽŸ‚Ì—ñ‹“‚ÉˆÚ“®
+		Next -= (uint8)1;
+	}
+
+	//‘ã“ü
+	eNowSelectBoss = (eBossSelect)Next;
 }
