@@ -172,6 +172,17 @@ public:
 
 	//UFUNCTION(BlueprintCallable, Category = "PlayerHp")
 	void HPCheck();
+
+protected:
+	FTimerHandle TimerHandle_HpLockFlickering;
+
+	//Hp一回ロックしたら、アンロックかかる時間　単位：s
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerHp")
+	float fHpLockFlickeringTime;
+
+	int32 iHpLockFlickerCount;
+	void SetHpLockFlickeringTimer();
+	void HpLockFlickering_Timer();
 						//------------------------damge--------------------------
 
 

@@ -93,6 +93,8 @@ ARockmanCharacter::ARockmanCharacter()
 	BulletArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("BulletArrowComp"));
 	BulletArrowComponent->SetupAttachment(RootComponent);
 
+	iHpLockFlickerCount = 0;
+	fHpLockFlickeringTime = 0.3f;
 	//--------------------追加したもの-----------------------------------
 }
 
@@ -124,11 +126,12 @@ void ARockmanCharacter::UpdateAnimation()
 		//ダメージを受けてる？
 		DesiredAnimation = InjuringAnimation;
 	}
-
+	
 	if (GetSprite()->GetFlipbook() != DesiredAnimation)
 	{
 		GetSprite()->SetFlipbook(DesiredAnimation);
 	}
+
 }
 
 void ARockmanCharacter::Tick(float DeltaSeconds)
@@ -138,7 +141,6 @@ void ARockmanCharacter::Tick(float DeltaSeconds)
 	UpdateCharacter();	
 
 	HPCheck();
-
 }
 
 
@@ -188,6 +190,8 @@ void ARockmanCharacter::Damge(int _HpSub = 0)
 		SetInjureAnimationON();
 
 		SetHpLock();
+
+		SetHpLockFlickeringTimer();
 	}
 }
 
@@ -255,6 +259,54 @@ void ARockmanCharacter::HPCheck()
 	{
 		IsDeath();
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+// PlayerFlickering
+
+void ARockmanCharacter::SetHpLockFlickeringTimer()
+{
+	UWorld* world = this->GetWorld();
+	if (world)
+	{
+		iHpLockFlickerCount = 0;
+		world->GetTimerManager().SetTimer(TimerHandle_HpLockFlickering,this,&ARockmanCharacter::HpLockFlickering_Timer,fHpLockFlickeringTime,true);
+	}
+}
+
+void ARockmanCharacter::HpLockFlickering_Timer()
+{
+	UE_LOG(LogTemp, Warning, TEXT("FlickeringAnimation_Timer exec Succeed!"));
+
+	//PlayerをFlickeringさせる
+	bool bNewVisible = GetSprite()->GetVisibleFlag();
+	GetSprite()->SetVisibility(!bNewVisible);
+
+	
+	//----------------------------HPLockが効いてない場合、TimerClear-----------------------------
+	
+	//----------------------------タイマーを50回実行したらClear----------------------------------
+	
+	iHpLockFlickerCount++;
+	
+	if (iHpLockFlickerCount > 5000 || bCanHpLock != true)
+	{
+		//Actor NoHidden
+		GetSprite()->SetVisibility(true);
+
+		//GetSprite()->
+		//TimerClear
+		UWorld* world = this->GetWorld();
+		if (world)
+		{
+			world->GetTimerManager().ClearTimer(TimerHandle_HpLockFlickering);
+			UE_LOG(LogTemp, Warning, TEXT("FlickeringAnimation_Timer clear Succeed!"));
+		}
+	}
+
+	//----------------------------タイマーを50回実行したらClear--------------------------------
+
+	//----------------------------HPLockが効いてない場合、TimerClear-----------------------------
 }
 
 //////////////////////////////////////////////////////////////////////////
