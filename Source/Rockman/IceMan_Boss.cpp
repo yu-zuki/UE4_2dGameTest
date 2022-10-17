@@ -30,6 +30,28 @@ AIceMan_Boss::AIceMan_Boss()
 }
 
 
+//////////////////////////////////////////////////////////////////////////
+// DetectJumpVertices	Jumpの頂点？　True　→　Yes　
+
+bool AIceMan_Boss::DetectJumpVertices()
+{
+
+	float tempLocation = NowLocation.Z;
+	NowLocation = GetActorLocation();
+
+	if (NowLocation.Z < tempLocation)
+	{
+		return true;
+	}
+	//GetCharacterMovement()->
+	return false;
+}
+
+void AIceMan_Boss::ReSetNowLocation()
+{
+	NowLocation = { 0.f,0.f,0.f };
+}
+
 void AIceMan_Boss::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);

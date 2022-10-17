@@ -57,3 +57,18 @@ AActor* AIceManAIController::GetNextMovetoActor()
 
 	
 }
+
+void AIceManAIController::SetNavActor(AActor* _ActorA, AActor* _ActorB, AActor* _ActorC)
+{
+	ActorA = _ActorA;
+	ActorB = _ActorB;
+	ActorC = _ActorC;
+
+	//Actorがセットされてるかをチェック
+	int64 NullCheck = (int64)ActorA & (int64)ActorB & (int64)ActorC;
+	if (!NullCheck)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("IceManController_NextMoveToActor Is NULL"));
+		return;
+	}
+}

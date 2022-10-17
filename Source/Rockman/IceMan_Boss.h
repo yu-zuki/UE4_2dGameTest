@@ -40,6 +40,15 @@ protected:
 
 	void UpdateCharacter();
 
+	//ëOÇÃç¿ïW
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Jump")
+	FVector NowLocation;
 public:
 	AIceMan_Boss();
+
+	UFUNCTION(BlueprintCallable, Category = "MoveActor")
+	bool DetectJumpVertices();
+
+	UFUNCTION(BlueprintCallable, Category = "MoveActor")
+	void ReSetNowLocation();
 };
