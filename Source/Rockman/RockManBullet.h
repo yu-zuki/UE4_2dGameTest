@@ -22,6 +22,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet")
 	float fDestoryTime;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet")
+	float fLifeSpan;
+
 	//弾　アニメション
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet")
 	UPaperFlipbook* FlipbookBullet;	

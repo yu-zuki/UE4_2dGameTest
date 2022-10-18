@@ -1,10 +1,14 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// 2022/10/18 22:59		ìüÅFéÀåÇãììÆÇé¿ëïÇµÇΩÅ@Å{Å@JumpãììÆÇç≈ìKâªÇµÇ‹ÇΩ
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "PaperCharacter.h"
 #include "IceMan_Boss.generated.h"
+
+class ARockManBullet;
+class UArrowComponent;
+class USphereComponent;
 
 /**
  * 
@@ -34,7 +38,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
 		class UPaperFlipbook* ShootAnimation;
 
-
 	/** Called to choose the correct animation to play based on the character's movement state */
 	void UpdateAnimation();
 
@@ -51,4 +54,41 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "MoveActor")
 	void ReSetNowLocation();
+
+protected:
+	//íeÇÃçÏê¨à íu
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shoot")
+	UArrowComponent* BulletArrowComponent;
+
+	//IceManÇÃíe
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shoot")
+	TSubclassOf<ARockManBullet> IceBulletClass;
+
+	UPROPERTY(VisibleAnywhere, Category = "Shoot")
+	USphereComponent* ShotDetectionComponent;
+
+	//íeÇÃè[ìUFalg
+	TArray<bool> bCanShootBullet;
+
+	UFUNCTION(BlueprintCallable, Category = "Shoot")
+	void ShootIceBullet();
+
+	UFUNCTION(BlueprintCallable, Category = "Shoot")
+	void ReLoadBullet();
+
+	UFUNCTION()
+	void OverlapInnerSphere(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shoot")
+		AActor* ActorA;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shoot")
+		AActor* ActorB;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shoot")
+		AActor* ActorC;
+
+	UFUNCTION(BlueprintCallable, Category = "Shoot")
+	void SetDetectionActor(AActor* _ActorA, AActor* _ActorB, AActor* _ActorC);
+	/*UFUNCTION(BlueprintCallable, Category = "Shoot")
+	void ShotDetectionComponent();*/
 };

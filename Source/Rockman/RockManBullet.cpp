@@ -9,6 +9,7 @@
 // Sets default values
 ARockManBullet::ARockManBullet()
 	:fDestoryTime(0.05f)
+	,fLifeSpan(3.0f)
 	,iDamage(10)
 	,fBulletSpeed(30)
 {
@@ -42,7 +43,7 @@ void ARockManBullet::BeginPlay()
 	Super::BeginPlay(); 
 
 	//éıñΩê›íËÅ@5ïb
-	SetLifeSpan(3);
+	SetLifeSpan(fLifeSpan);
 	
 }
 

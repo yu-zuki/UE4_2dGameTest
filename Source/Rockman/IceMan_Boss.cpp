@@ -1,11 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// 2022/10/18 22:59		董：射撃挙動を実装した　＋　Jump挙動を最適化しまた
 
 #include "IceMan_Boss.h"
 #include "PaperFlipbookComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include <Kismet/GameplayStatics.h>
 #include <GameFramework/Actor.h>
+#include "RockManBullet.h"
+#include <Components/ArrowComponent.h>
+#include <Components/SphereComponent.h>
 
 AIceMan_Boss::AIceMan_Boss()
 {
@@ -27,29 +29,19 @@ AIceMan_Boss::AIceMan_Boss()
 	// Note: This can cause a little floating when going up inclines; you can choose the tradeoff between better
 	// behavior on the edge of a ledge versus inclines by setting this to true or false
 	GetCharacterMovement()->bUseFlatBaseForFloorChecks = true;
-}
 
+	//弾フラグ用意
+	bCanShootBullet.Init(false, 3);
 
-//////////////////////////////////////////////////////////////////////////
-// DetectJumpVertices	Jumpの頂点？　True　→　Yes　
+	BulletArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("BulletArrowComp"));
+	BulletArrowComponent->SetupAttachment(RootComponent);
 
-bool AIceMan_Boss::DetectJumpVertices()
-{
+	ShotDetectionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("InnerSphereComp"));
+	ShotDetectionComponent->SetSphereRadius(10);
+	ShotDetectionComponent->SetupAttachment(RootComponent);
 
-	float tempLocation = NowLocation.Z;
-	NowLocation = GetActorLocation();
-
-	if (NowLocation.Z < tempLocation)
-	{
-		return true;
-	}
-	//GetCharacterMovement()->
-	return false;
-}
-
-void AIceMan_Boss::ReSetNowLocation()
-{
-	NowLocation = { 0.f,0.f,0.f };
+	//当たり判定イベントを　追加
+	ShotDetectionComponent->OnComponentBeginOverlap.AddDynamic(this, &AIceMan_Boss::OverlapInnerSphere);
 }
 
 void AIceMan_Boss::Tick(float DeltaSeconds)
@@ -129,6 +121,109 @@ void AIceMan_Boss::UpdateCharacter()
 			TempDamgeVector.X -= 5.0f;
 		}
 		SetActorLocation(TempDamgeVector);
+	}
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// DetectJumpVertices	Jumpの頂点？　True　→　Yes　
+
+bool AIceMan_Boss::DetectJumpVertices()
+{
+
+	float tempLocation = NowLocation.Z;
+	NowLocation = GetActorLocation();
+
+	if (NowLocation.Z < tempLocation)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+void AIceMan_Boss::ReSetNowLocation()
+{
+	NowLocation = { 0.f,0.f,0.f };
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Shoot
+
+void AIceMan_Boss::ShootIceBullet()
+{
+	if (!IceBulletClass)
+	{
+		return;
+	}
+
+	//座標情報　取得
+	FTransform tempTransfrom = BulletArrowComponent->GetComponentTransform();
+	//弾を作成
+	GetWorld()->SpawnActor<ARockManBullet>(IceBulletClass, tempTransfrom);
+}
+
+//////////////////////////////////////////////////////////////////////////
+// BulletReLoad
+
+void AIceMan_Boss::ReLoadBullet()
+{
+	for (bool& ShootBulletFlag : bCanShootBullet)
+	{
+		ShootBulletFlag = true;		//弾を充填
+	}
+}
+
+void AIceMan_Boss::OverlapInnerSphere(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	//UE_LOG(LogTemp, Warning, TEXT("ShootIceBullet"));
+
+	if (bCanShootBullet[0])	{			//2022/10/18 董：数が多くなると、定義にActorABCをこの書き方で AActor* FlagCheckActor[3] for()
+		if (OtherActor == ActorA)		{
+
+			ShootIceBullet();
+
+			bCanShootBullet[0] = false;
+
+			UE_LOG(LogTemp, Warning, TEXT("ShootIceBullet"));
+		}
+	}
+
+	if (bCanShootBullet[1]) {			
+		if (OtherActor == ActorB) {
+
+			ShootIceBullet();
+
+			bCanShootBullet[1] = false;
+		}
+	}
+
+	if (bCanShootBullet[2]) {			
+		if (OtherActor == ActorC) {
+
+			ShootIceBullet();
+
+			bCanShootBullet[2] = false;
+		}
+	}
+	
+}
+
+void AIceMan_Boss::SetDetectionActor(AActor* _ActorA, AActor* _ActorB, AActor* _ActorC)
+{
+
+	ActorA = _ActorA;
+	ActorB = _ActorB;
+	ActorC = _ActorC;
+
+	//Actorがセットされてるかをチェック
+	int64 NullCheck = (int64)ActorA & (int64)ActorB & (int64)ActorC;
+	if (!NullCheck)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("IceMan DetectionActor Is NULL"));
+		return;
 	}
 }
 
