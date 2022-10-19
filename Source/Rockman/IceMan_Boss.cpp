@@ -8,6 +8,7 @@
 #include "RockManBullet.h"
 #include <Components/ArrowComponent.h>
 #include <Components/SphereComponent.h>
+#include <Engine/EngineTypes.h>
 
 AIceMan_Boss::AIceMan_Boss()
 {
@@ -42,11 +43,16 @@ AIceMan_Boss::AIceMan_Boss()
 
 	//当たり判定イベントを　追加
 	ShotDetectionComponent->OnComponentBeginOverlap.AddDynamic(this, &AIceMan_Boss::OverlapInnerSphere);
+
+	fShootingFlagOffTime = 0.5;
+	bIsShooting = false;
 }
 
 void AIceMan_Boss::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	UpdateCharacter();
 }
 
 void AIceMan_Boss::UpdateAnimation()
@@ -63,7 +69,7 @@ void AIceMan_Boss::UpdateAnimation()
 	if (GetCharacterMovement()->IsFalling())
 		DesiredAnimation = JumpingAnimation;
 
-	if (false)
+	if (bIsShooting)
 	{
 		//弾を打った？
 		DesiredAnimation = ShootAnimation;
@@ -84,22 +90,6 @@ void AIceMan_Boss::UpdateAnimation()
 void AIceMan_Boss::UpdateCharacter()
 {
 	UpdateAnimation();
-
-	// Now setup the rotation of the controller based on the direction we are travelling
-	const FVector PlayerVelocity = GetVelocity();
-	float TravelDirection = PlayerVelocity.X;
-	// Set the rotation so that the character faces his direction of travel.
-	if (Controller != nullptr)
-	{
-		if (TravelDirection < 0.0f)
-		{
-			Controller->SetControlRotation(FRotator(0.0, 180.0f, 0.0f));
-		}
-		else if (TravelDirection > 0.0f)
-		{
-			Controller->SetControlRotation(FRotator(0.0f, 0.0f, 0.0f));
-		}
-	}
 
 	//ダメージ受けた時の処理
 	if (false)
@@ -162,6 +152,17 @@ void AIceMan_Boss::ShootIceBullet()
 	FTransform tempTransfrom = BulletArrowComponent->GetComponentTransform();
 	//弾を作成
 	GetWorld()->SpawnActor<ARockManBullet>(IceBulletClass, tempTransfrom);
+
+	//弾のアニメションOn
+	bIsShooting = true;
+	GetWorldTimerManager().SetTimer(TimerHandle_ShootingFlagOff,this,&AIceMan_Boss::ShootingFlagOff,fShootingFlagOffTime);
+}
+
+//////////////////////////////////////////////////////////////////////////
+// ShootingAnimationOff
+void AIceMan_Boss::ShootingFlagOff()
+{
+	bIsShooting = false;
 }
 
 //////////////////////////////////////////////////////////////////////////

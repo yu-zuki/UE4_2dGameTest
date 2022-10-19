@@ -91,4 +91,12 @@ protected:
 	void SetDetectionActor(AActor* _ActorA, AActor* _ActorB, AActor* _ActorC);
 	/*UFUNCTION(BlueprintCallable, Category = "Shoot")
 	void ShotDetectionComponent();*/
+
+	FTimerHandle TimerHandle_ShootingFlagOff;
+	bool bIsShooting;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shoot")
+	float fShootingFlagOffTime;
+
+	void ShootingFlagOff();
 };
