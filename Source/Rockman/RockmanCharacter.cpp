@@ -90,11 +90,21 @@ ARockmanCharacter::ARockmanCharacter()
 
 	//--------------------追加したもの-----------------------------------
 
+	//弾発射の座標用
 	BulletArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("BulletArrowComp"));
 	BulletArrowComponent->SetupAttachment(RootComponent);
 
+
+	JumpingBulletArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("JumpBulletArrowComp"));
+	JumpingBulletArrowComponent->SetupAttachment(RootComponent);
+
+	//HpLock
 	iHpLockFlickerCount = 0;
 	fHpLockFlickeringTime = 0.3f;
+
+	//ShootAnimationのパラメータ
+	fShootingFlagOffTime = 0.5;
+	bIsShootingAnimation = false;
 	//--------------------追加したもの-----------------------------------
 }
 
@@ -111,22 +121,38 @@ void ARockmanCharacter::UpdateAnimation()
 	// Are we moving or standing still?
 	DesiredAnimation = (PlayerSpeedSqr > 0.0f) ? RunningAnimation : IdleAnimation;
 
-	// Jump　してますか？
+	// Jump?
 	if (GetCharacterMovement()->IsFalling())
 		DesiredAnimation = JumpingAnimation;
-	
-	if (false)
+
+	// Shoot?
+	if (bIsShootingAnimation)
 	{
-		//弾を打った？
+		
 		DesiredAnimation = ShootAnimation;
 	}
 
+	// Walk & Shoot?
+	if (PlayerSpeedSqr > 0.0f && bIsShootingAnimation)
+	{
+		DesiredAnimation = WalkingShootAnimation;
+	}
+
+	// Jump & Shoot?
+	if (bIsShootingAnimation && GetCharacterMovement()->IsFalling())
+	{
+		DesiredAnimation = JumpingShootAnimation;
+	}
+
+
+	// Injure?
 	if (bCanInjure)
 	{
 		//ダメージを受けてる？
 		DesiredAnimation = InjuringAnimation;
 	}
 	
+	// Set Animation
 	if (GetSprite()->GetFlipbook() != DesiredAnimation)
 	{
 		GetSprite()->SetFlipbook(DesiredAnimation);
@@ -363,12 +389,34 @@ void ARockmanCharacter::RockmanShoot()
 			//Bullte数　- 1
 			BulletSub(1);
 
-			//座標情報　取得
-			FTransform tempTransfrom = BulletArrowComponent->GetComponentTransform();
-			//弾を作成
-			GetWorld()->SpawnActor<ARockManBullet>(BulletClass, tempTransfrom);
-		}
+			//弾のアニメションOn
+			bIsShootingAnimation = true;
+			GetWorldTimerManager().SetTimer(TimerHandle_ShootingFlagOff, this, &ARockmanCharacter::ShootingFlagOff, fShootingFlagOffTime);
+
+
+			if (GetCharacterMovement()->IsFalling())
+			{
+				FTransform tempTransfrom = JumpingBulletArrowComponent->GetComponentTransform();
+				//弾を作成
+				GetWorld()->SpawnActor<ARockManBullet>(BulletClass, tempTransfrom);
+			}
+			else
+			{
+
+				//座標情報　取得
+				FTransform tempTransfrom = BulletArrowComponent->GetComponentTransform();
+				//弾を作成
+				GetWorld()->SpawnActor<ARockManBullet>(BulletClass, tempTransfrom);
+
+			}
+
+					}
 	}
+}
+
+void ARockmanCharacter::ShootingFlagOff()
+{
+	bIsShootingAnimation = false;
 }
 
 //////////////////////////////////////////////////////////////////////////

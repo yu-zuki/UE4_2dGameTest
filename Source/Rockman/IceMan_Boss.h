@@ -92,6 +92,7 @@ protected:
 	/*UFUNCTION(BlueprintCallable, Category = "Shoot")
 	void ShotDetectionComponent();*/
 
+	//ShootAnimation‚Ìˆ—
 	FTimerHandle TimerHandle_ShootingFlagOff;
 	bool bIsShooting;
 

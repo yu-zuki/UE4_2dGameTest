@@ -44,6 +44,7 @@ AIceMan_Boss::AIceMan_Boss()
 	//当たり判定イベントを　追加
 	ShotDetectionComponent->OnComponentBeginOverlap.AddDynamic(this, &AIceMan_Boss::OverlapInnerSphere);
 
+	//ShootAnimationのパラメータ
 	fShootingFlagOffTime = 0.5;
 	bIsShooting = false;
 }

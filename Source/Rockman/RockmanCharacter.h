@@ -63,7 +63,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
 	class UPaperFlipbook* ShootAnimation;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
+	class UPaperFlipbook* JumpingShootAnimation;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
+	class UPaperFlipbook* WalkingShootAnimation;
 
 	/** Called to choose the correct animation to play based on the character's movement state */
 	void UpdateAnimation();
@@ -113,6 +117,10 @@ protected:
 	//弾の作成位置
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shoot")
 	UArrowComponent* BulletArrowComponent;
+
+	//Jump中、弾の作成位置
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shoot")
+	UArrowComponent* JumpingBulletArrowComponent;
 
 	//弾の参照
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shoot")
@@ -202,6 +210,17 @@ protected:
 
 	void RockmanShoot();
 	//------------キーボード入力-----------------
+
+protected:
+
+	//ShootAnimationの処理
+	FTimerHandle TimerHandle_ShootingFlagOff;
+	bool bIsShootingAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anime")
+		float fShootingFlagOffTime;
+
+	void ShootingFlagOff();
 
 //------------------------------------------追加したもの-----------------------------------------------------------
 public:
