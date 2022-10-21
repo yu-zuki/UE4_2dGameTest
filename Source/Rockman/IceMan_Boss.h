@@ -10,6 +10,14 @@ class ARockManBullet;
 class UArrowComponent;
 class USphereComponent;
 
+UENUM(BlueprintType)
+enum class eEnemyName : uint8
+{
+	CutMan = 0x0,
+	FireMan,
+	IceMan
+};
+
 /**
  * 
  */
@@ -20,7 +28,16 @@ class ROCKMAN_API AIceMan_Boss : public APaperCharacter
 	
 	virtual void Tick(float DeltaSeconds) override;
 
+	eEnemyName EnemyName;
+
+public:
+	UFUNCTION(BlueprintImplementableEvent, Category = "GameClear")
+	void IsDeath();
+
 protected:
+	UFUNCTION(BlueprintCallable, Category = "EnemyName")
+	eEnemyName GetEnemyName() const;
+
 	// The animation to play while running around
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
 		class UPaperFlipbook* RunningAnimation;
@@ -43,8 +60,7 @@ protected:
 
 	void UpdateCharacter();
 
-	//前の座標
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Jump")
+				//------------------------Move--------------------------
 	FVector NowLocation;
 public:
 	AIceMan_Boss();
@@ -54,7 +70,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "MoveActor")
 	void ReSetNowLocation();
+				//------------------------Move--------------------------
 
+
+				//------------------------Shoot--------------------------
 protected:
 	//弾の作成位置
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shoot")
@@ -100,4 +119,73 @@ protected:
 	float fShootingFlagOffTime;
 
 	void ShootingFlagOff();
+				//------------------------Shoot--------------------------
+
+
+				//------------------------damge--------------------------
+	//ダメージ受ける？
+	bool bCanInjure;
+
+	//ダメージ受けたら、アニメションさせる時間
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damge")
+		float fInjuringAnimationTime;
+
+	FTimerHandle TimerHandle_InjuringAnimationTime;
+
+	//ダメージの処理
+	UFUNCTION(BlueprintCallable, Category = "Damge")
+		void Damge(int _HpSub);
+
+	UFUNCTION(Category = "Damge")
+		bool IsInjuring();
+
+	UFUNCTION(Category = "Damge")
+		void SetInjureAnimationON();
+
+	UFUNCTION(Category = "Damge")
+		void SetInjureAnimationOFF();
+
+
+
+	//Hpロック中
+	bool bCanHpLock;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyHp")
+		int iHP;
+
+	//Hp一回ロックしたら、アンロックかかる時間　単位：s
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyHp")
+		float fUnlockTime;
+
+	FTimerHandle TimerHandle_Unlock;
+
+	//ダメージ受けた時、Hpロックして 無敵時間をさせる処理
+	void SetHpLock();
+	void SetHpUnlock();
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "EnemyHp")
+		int GetEnemyHp() const;
+
+	//HPの増加減らす　処理
+	UFUNCTION(BlueprintCallable, Category = "EnemyHp")
+		void HPSub(int _subHP);
+
+	UFUNCTION(BlueprintCallable, Category = "EnemyHp")
+		void HPAdd(int _addHP);
+
+	//UFUNCTION(BlueprintCallable, Category = "EnemyHp")
+	void HPCheck();
+
+protected:
+	FTimerHandle TimerHandle_HpLockFlickering;
+
+	//Hp一回ロックしたら、アンロックかかる時間　単位：s
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyHp")
+		float fHpLockFlickeringTime;
+
+	int32 iHpLockFlickerCount;
+	void SetHpLockFlickeringTimer();
+	void HpLockFlickering_Timer();
+				//------------------------damge--------------------------
 };

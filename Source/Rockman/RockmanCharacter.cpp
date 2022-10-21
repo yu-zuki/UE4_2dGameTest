@@ -216,7 +216,7 @@ void ARockmanCharacter::Damge(int _HpSub = 0)
 		SetInjureAnimationON();
 
 		SetHpLock();
-
+		
 		SetHpLockFlickeringTimer();
 	}
 }
@@ -341,6 +341,7 @@ void ARockmanCharacter::HpLockFlickering_Timer()
 void ARockmanCharacter::SetHpLock()
 {
 	bCanHpLock = true;
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
 
 	GetWorldTimerManager().SetTimer(TimerHandle_Unlock, this, &ARockmanCharacter::SetHpUnlock, fUnlockTime);
 }
@@ -348,6 +349,7 @@ void ARockmanCharacter::SetHpLock()
 void ARockmanCharacter::SetHpUnlock()
 {
 	bCanHpLock = false;
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Block);
 }
 
 int ARockmanCharacter::GetPlayerHp() const

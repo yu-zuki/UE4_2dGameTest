@@ -4,13 +4,21 @@
 #include "PaperFlipbookComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include <Kismet/GameplayStatics.h>
+#include "Components/CapsuleComponent.h"
 #include <GameFramework/Actor.h>
 #include "RockManBullet.h"
 #include <Components/ArrowComponent.h>
 #include <Components/SphereComponent.h>
 #include <Engine/EngineTypes.h>
+#include <GameFramework/Character.h>
 
 AIceMan_Boss::AIceMan_Boss()
+	:EnemyName(eEnemyName::IceMan)
+	, bCanInjure(false)
+	, bCanHpLock(false)
+	, fInjuringAnimationTime(1.0f)
+	, iHP(25)
+	, fUnlockTime(1.0f)
 {
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 
@@ -47,6 +55,7 @@ AIceMan_Boss::AIceMan_Boss()
 	//ShootAnimationのパラメータ
 	fShootingFlagOffTime = 0.5;
 	bIsShooting = false;
+
 }
 
 void AIceMan_Boss::Tick(float DeltaSeconds)
@@ -54,6 +63,11 @@ void AIceMan_Boss::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	UpdateCharacter();
+}
+
+eEnemyName AIceMan_Boss::GetEnemyName() const
+{
+	return EnemyName;
 }
 
 void AIceMan_Boss::UpdateAnimation()
@@ -227,5 +241,150 @@ void AIceMan_Boss::SetDetectionActor(AActor* _ActorA, AActor* _ActorB, AActor* _
 		UE_LOG(LogTemp, Warning, TEXT("IceMan DetectionActor Is NULL"));
 		return;
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Damge
+
+void AIceMan_Boss::Damge(int _HpSub = 0)
+{
+	if (bCanHpLock)
+	{
+		return;
+	}
+	else
+	{
+		HPSub(_HpSub);
+
+		SetInjureAnimationON();
+
+		SetHpLock();
+
+		SetHpLockFlickeringTimer();
+
+		HPCheck();
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+// InjureAnim
+
+bool AIceMan_Boss::IsInjuring()
+{
+	return bCanInjure;
+}
+
+void AIceMan_Boss::SetInjureAnimationON()
+{
+	bCanInjure = true;
+
+	GetWorldTimerManager().SetTimer(TimerHandle_InjuringAnimationTime, this, &AIceMan_Boss::SetInjureAnimationOFF, fInjuringAnimationTime);
+}
+
+void AIceMan_Boss::SetInjureAnimationOFF()
+{
+	bCanInjure = false;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// HP
+
+void AIceMan_Boss::HPSub(int _subHP = 0)
+{
+	iHP -= _subHP;
+	if (iHP < 0)
+	{
+		iHP = 0;
+	}
+}
+
+void AIceMan_Boss::HPAdd(int  _addHP = 0)
+{
+	iHP += _addHP;
+	if (iHP > 25)
+	{
+		iHP = 25;
+	}
+}
+
+
+void AIceMan_Boss::HPCheck()
+{
+	if (iHP <= 0)
+	{
+		IsDeath();
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+// PlayerFlickering
+
+void AIceMan_Boss::SetHpLockFlickeringTimer()
+{
+	UWorld* world = this->GetWorld();
+	if (world)
+	{
+		iHpLockFlickerCount = 0;
+		world->GetTimerManager().SetTimer(TimerHandle_HpLockFlickering, this, &AIceMan_Boss::HpLockFlickering_Timer, fHpLockFlickeringTime, true);
+	}
+}
+
+void AIceMan_Boss::HpLockFlickering_Timer()
+{
+	UE_LOG(LogTemp, Warning, TEXT("FlickeringAnimation_Timer exec Succeed!"));
+
+	//PlayerをFlickeringさせる
+	bool bNewVisible = GetSprite()->GetVisibleFlag();
+	GetSprite()->SetVisibility(!bNewVisible);
+
+
+	//----------------------------HPLockが効いてない場合、TimerClear-----------------------------
+
+	//----------------------------タイマーを50回実行したらClear----------------------------------
+
+	iHpLockFlickerCount++;
+
+	if (iHpLockFlickerCount > 5000 || bCanHpLock != true)
+	{
+		//Actor NoHidden
+		GetSprite()->SetVisibility(true);
+
+		//GetSprite()->
+		//TimerClear
+		UWorld* world = this->GetWorld();
+		if (world)
+		{
+			world->GetTimerManager().ClearTimer(TimerHandle_HpLockFlickering);
+			UE_LOG(LogTemp, Warning, TEXT("FlickeringAnimation_Timer clear Succeed!"));
+		}
+	}
+
+	//----------------------------タイマーを50回実行したらClear--------------------------------
+
+	//----------------------------HPLockが効いてない場合、TimerClear-----------------------------
+}
+
+//////////////////////////////////////////////////////////////////////////
+// HpLock
+
+void AIceMan_Boss::SetHpLock()
+{
+	bCanHpLock = true;
+
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
+
+	GetWorldTimerManager().SetTimer(TimerHandle_Unlock, this, &AIceMan_Boss::SetHpUnlock, fUnlockTime);
+}
+
+void AIceMan_Boss::SetHpUnlock()
+{
+	bCanHpLock = false;
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Block);
+}
+
+int AIceMan_Boss::GetEnemyHp() const
+{
+	//return iHP;
+	return iHP;
 }
 
