@@ -11,7 +11,7 @@ class UArrowComponent;
 class USphereComponent;
 
 UENUM(BlueprintType)
-enum class eEnemyName : uint8
+enum class EEnemyName : uint8
 {
 	CutMan = 0x0,
 	FireMan,
@@ -28,7 +28,7 @@ class ROCKMAN_API AIceMan_Boss : public APaperCharacter
 	
 	virtual void Tick(float DeltaSeconds) override;
 
-	eEnemyName EnemyName;
+	EEnemyName EnemyName;
 
 public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "GameClear")
@@ -36,7 +36,10 @@ public:
 
 protected:
 	UFUNCTION(BlueprintCallable, Category = "EnemyName")
-	eEnemyName GetEnemyName() const;
+	EEnemyName GetEnemyName() const;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
+		class UPaperFlipbook* StartAnimation;
 
 	// The animation to play while running around
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)

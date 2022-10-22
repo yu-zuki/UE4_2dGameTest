@@ -11,9 +11,10 @@
 #include <Components/SphereComponent.h>
 #include <Engine/EngineTypes.h>
 #include <GameFramework/Character.h>
+#include "RockmanGameMode.h"
 
 AIceMan_Boss::AIceMan_Boss()
-	:EnemyName(eEnemyName::IceMan)
+	:EnemyName(EEnemyName::IceMan)
 	, bCanInjure(false)
 	, bCanHpLock(false)
 	, fInjuringAnimationTime(1.0f)
@@ -65,41 +66,71 @@ void AIceMan_Boss::Tick(float DeltaSeconds)
 	UpdateCharacter();
 }
 
-eEnemyName AIceMan_Boss::GetEnemyName() const
+EEnemyName AIceMan_Boss::GetEnemyName() const
 {
 	return EnemyName;
 }
 
 void AIceMan_Boss::UpdateAnimation()
 {
-	const FVector PlayerVelocity = GetVelocity();
-	const float PlayerSpeedSqr = PlayerVelocity.SizeSquared();
 
-	UPaperFlipbook* DesiredAnimation = nullptr;
+	ARockmanGameMode* TempGameMode = Cast<ARockmanGameMode>( UGameplayStatics::GetGameMode(GetWorld()) );
 
-	// Are we moving or standing still?
-	DesiredAnimation = (PlayerSpeedSqr > 0.0f) ? RunningAnimation : IdleAnimation;
-
-	// Jump　してますか？
-	if (GetCharacterMovement()->IsFalling())
-		DesiredAnimation = JumpingAnimation;
-
-	if (bIsShooting)
+	if (TempGameMode)
 	{
-		//弾を打った？
-		DesiredAnimation = ShootAnimation;
-	}
+		EStageFlow TempFlow = TempGameMode->GetNowStep();
 
-	if (false)
-	{
-		//ダメージを受けてる？
-		DesiredAnimation = InjuringAnimation;
-	}
+		//StageStart時のアニメション
+		if (TempFlow == EStageFlow::stageStart)
+		{
+			UPaperFlipbook* DesiredAnimation = nullptr;
+			DesiredAnimation = StartAnimation;
 
-	if (GetSprite()->GetFlipbook() != DesiredAnimation)
-	{
-		GetSprite()->SetFlipbook(DesiredAnimation);
+			if (GetSprite()->GetFlipbook() != DesiredAnimation)
+			{
+				GetSprite()->SetFlipbook(DesiredAnimation);
+			}
+
+		}
+
+		//StagePlaying時のアニメション
+		else if (TempFlow == EStageFlow::stagePlaying)
+		{
+
+			const FVector PlayerVelocity = GetVelocity();
+			const float PlayerSpeedSqr = PlayerVelocity.SizeSquared();
+
+			UPaperFlipbook* DesiredAnimation = nullptr;
+
+			// Are we moving or standing still?
+			DesiredAnimation = (PlayerSpeedSqr > 0.0f) ? RunningAnimation : IdleAnimation;
+
+			// Jump　してますか？
+			if (GetCharacterMovement()->IsFalling())
+				DesiredAnimation = JumpingAnimation;
+
+			if (bIsShooting)
+			{
+				//弾を打った？
+				DesiredAnimation = ShootAnimation;
+			}
+
+			if (false)
+			{
+				//ダメージを受けてる？
+				DesiredAnimation = InjuringAnimation;
+			}
+
+			if (GetSprite()->GetFlipbook() != DesiredAnimation)
+			{
+				GetSprite()->SetFlipbook(DesiredAnimation);
+			}
+
+		}
 	}
+	
+
+
 }
 
 void AIceMan_Boss::UpdateCharacter()

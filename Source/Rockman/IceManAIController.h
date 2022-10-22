@@ -34,9 +34,9 @@ protected:
 	//ŽŸ‚Ì–Ú“I‚ðŽæ“¾
 	UFUNCTION(BlueprintCallable, Category = "MoveActor")
 	AActor* GetNextMovetoActor();
-
 	UFUNCTION(BlueprintCallable, Category = "MoveActor")
 	void SetNavActor(AActor* _ActorA, AActor* _ActorB, AActor* _ActorC);
 public:
 	AIceManAIController();
 };
+

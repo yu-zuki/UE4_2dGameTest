@@ -7,7 +7,7 @@
 AIceManAIController::AIceManAIController()
 {
 	bCanRightMove = true;
-	iLocationSelect = 0;
+	iLocationSelect = 2;
 }
 
 //////////////////////////////////////////////////////////////////////////
