@@ -294,6 +294,8 @@ void AIceMan_Boss::Damge(int _HpSub = 0)
 		SetHpLockFlickeringTimer();
 
 		HPCheck();
+
+		EnemyPlaySound();
 	}
 }
 

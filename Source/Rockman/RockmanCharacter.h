@@ -138,7 +138,7 @@ protected:
 
 	//ダメージの処理
 	UFUNCTION(BlueprintCallable, Category = "Damge")
-	void Damge(int _HpSub);
+	virtual void Damge(int _HpSub);
 
 	UFUNCTION(Category = "Damge")
 	bool IsInjuring();
@@ -149,7 +149,8 @@ protected:
 	UFUNCTION(Category = "Damge")
 	void SetInjureAnimationOFF();
 
-
+	UFUNCTION(BlueprintImplementableEvent, Category = "Sound")
+	void PlayerPlaySound();
 
 	//Hpロック中
 	bool bCanHpLock;

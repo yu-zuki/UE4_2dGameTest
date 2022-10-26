@@ -218,6 +218,8 @@ void ARockmanCharacter::Damge(int _HpSub = 0)
 		SetHpLock();
 		
 		SetHpLockFlickeringTimer();
+
+		PlayerPlaySound();
 	}
 }
 
